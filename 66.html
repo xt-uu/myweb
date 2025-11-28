@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💘 专属表白邀请</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        body {
+            height: 100vh;
+            background: linear-gradient(135deg, #fdf2f8 0%, #fef7fb 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: "Microsoft YaHei", "Segoe UI", sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
+        /* 背景装饰 */
+        .bg-decoration {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        .bg-dot {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: rgba(229, 62, 62, 0.1);
+            border-radius: 50%;
+            animation: float 8s infinite ease-in-out;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        /* 标题 */
+        .title {
+            font-size: 36px;
+            color: #e53e3e;
+            margin-bottom: 60px;
+            text-shadow: 0 3px 15px rgba(229, 62, 62, 0.2);
+            opacity: 0;
+            animation: fadeIn 1.5s forwards;
+            z-index: 10;
+        }
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+        /* 按钮容器 */
+        .btn-container {
+            position: relative;
+            width: 380px;
+            height: 80px;
+            margin-bottom: 50px;
+            z-index: 15;
+        }
+        /* 按钮基础样式 */
+        .choice-btn {
+            padding: 20px 40px;
+            border: none;
+            border-radius: 60px;
+            font-size: 22px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            opacity: 0;
+            animation: fadeIn 1.5s forwards 0.5s;
+            position: absolute;
+            top: 0;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 150px; /* 统一初始宽度 */
+        }
+        /* 愿意按钮：始终在上方，逐步放大 */
+        #agreeBtn {
+            background: linear-gradient(45deg, #e53e3e, #c53030);
+            color: white;
+            overflow: hidden;
+            z-index: 3; /* 层级最高，始终覆盖 */
+            left: 0;
+            transform-origin: left center;
+        }
+        #agreeBtn::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            animation: shine 3s infinite;
+        }
+        @keyframes shine {
+            100% { left: 100%; }
+        }
+        /* 不愿意按钮：层级低于愿意，文字动态变化 */
+        #disagreeBtn {
+            background: linear-gradient(45deg, #4299e1, #3182ce);
+            color: white;
+            z-index: 2; /* 层级低于愿意按钮 */
+            right: 0;
+        }
+        .choice-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        .choice-btn:active {
+            transform: translateY(-2px);
+        }
+        /* 动态元素容器 */
+        .dynamic-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+        /* 超大爱心 */
+        .heart-big {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0) rotate(45deg);
+            width: 250px;
+            height: 250px;
+            background: linear-gradient(45deg, #e53e3e, #ff6b6b);
+            border-radius: 20px;
+            box-shadow: 0 0 60px rgba(229, 62, 62, 0.8), inset 0 0 30px rgba(255, 255, 255, 0.3);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 20;
+            animation: heartBigAnimate 6s ease-in-out forwards;
+        }
+        .heart-big::before, .heart-big::after {
+            content: "";
+            width: 250px;
+            height: 250px;
+            background: inherit;
+            border-radius: 50%;
+            position: absolute;
+            box-shadow: inset 0 0 30px rgba(255, 255, 255, 0.3);
+        }
+        .heart-big::before { top: -125px; left: 0; }
+        .heart-big::after { top: 0; left: -125px; }
+        @keyframes heartBigAnimate {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0) rotate(45deg); }
+            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.3) rotate(45deg); }
+            40% { transform: translate(-50%, -50%) scale(1) rotate(45deg); }
+            60% { transform: translate(-50%, -50%) scale(1.1) rotate(45deg); box-shadow: 0 0 70px rgba(229, 62, 62, 0.9), inset 0 0 30px rgba(255, 255, 255, 0.3); }
+            80% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(45deg); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8) rotate(45deg); }
+        }
+        /* 小伤心表情 */
+        .sad-icon {
+            position: absolute;
+            font-size: 24px;
+            opacity: 0;
+            animation: sadFloat 3s ease-out forwards;
+        }
+        @keyframes sadFloat {
+            0% { opacity: 1; transform: scale(0.5); }
+            50% { transform: scale(1.2) rotate(10deg); }
+            100% { opacity: 0; transform: scale(0.8) translateY(120px) rotate(-10deg); }
+        }
+        /* 成功提示 */
+        .success-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            font-size: 50px;
+            color: #e53e3e;
+            font-weight: bold;
+            text-shadow: 0 0 30px rgba(229, 62, 62, 0.6);
+            z-index: 40;
+            text-align: center;
+        }
+        .success-message.active {
+            transform: translate(-50%, -50%) scale(1);
+            animation: bounce 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
+        }
+        /* 伤心弹窗 */
+        .sad-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            z-index: 35;
+            text-align: center;
+        }
+        .sad-modal.active {
+            transform: translate(-50%, -50%) scale(1);
+            animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .sad-emoji {
+            font-size: 120px;
+            margin-bottom: 20px;
+            animation: cry 2s infinite ease-in-out;
+        }
+        @keyframes cry {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-10px) rotate(-5deg); }
+            75% { transform: translateY(-10px) rotate(5deg); }
+        }
+        .sad-text {
+            font-size: 26px;
+            color: #4a5568;
+            font-weight: 500;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <!-- 背景装饰点 -->
+    <div class="bg-decoration" id="bgDecoration"></div>
+    <!-- 标题 -->
+    <h1 class="title">你愿意做我的专属浪漫吗？</h1>
+    <!-- 按钮容器 -->
+    <div class="btn-container">
+        <button class="choice-btn" id="agreeBtn" onclick="handleAgree()">愿意</button>
+        <button class="choice-btn" id="disagreeBtn" onclick="handleDisagree()">不愿意</button>
+    </div>
+    <!-- 动态元素容器 -->
+    <div class="dynamic-container" id="dynamicContainer"></div>
+    <!-- 成功提示：添加🥰表情包 -->
+    <div class="success-message" id="successMessage">❤️ 耶！我成功了🥰❤️<br>从此我们的故事甜度超标～🥰</div>
+    <!-- 伤心弹窗 -->
+    <div class="sad-modal" id="sadModal">
+        <div class="sad-emoji">😭</div>
+        <div class="sad-text">你怎么能拒绝我呢...</div>
+    </div>
+
+    <script>
+        const agreeBtn = document.getElementById("agreeBtn");
+        const disagreeBtn = document.getElementById("disagreeBtn");
+        const dynamicContainer = document.getElementById("dynamicContainer");
+        const successMessage = document.getElementById("successMessage");
+        const sadModal = document.getElementById("sadModal");
+        const bgDecoration = document.getElementById("bgDecoration");
+        let agreeBtnScale = 1;
+        let sadModalTimer = null;
+        let disagreeClickCount = 0; // 不愿意按钮点击次数
+
+        // 初始化背景装饰点
+        function initBgDots() {
+            for (let i = 0; i < 30; i++) {
+                const dot = document.createElement("div");
+                dot.classList.add("bg-dot");
+                dot.style.left = `${Math.random() * 100}vw`;
+                dot.style.top = `${Math.random() * 100}vh`;
+                dot.style.animationDelay = `${Math.random() * 5}s`;
+                dot.style.width = `${Math.random() * 10 + 5}px`;
+                dot.style.height = dot.style.width;
+                bgDecoration.appendChild(dot);
+            }
+        }
+        initBgDots();
+
+        // 点击“愿意”按钮
+        function handleAgree() {
+            createBigHeart();
+            // 保持初始背景不变（无需额外设置）
+            setTimeout(() => {
+                successMessage.classList.add("active");
+                setTimeout(() => successMessage.classList.remove("active"), 6000);
+            }, 800);
+        }
+
+        // 点击“不愿意”按钮（无背景切换，保持初始渐变）
+        function handleDisagree() {
+            disagreeClickCount++;
+            // 移除小猫背景切换逻辑，保持初始背景
+            createSadIcons(20);
+
+            // 第一次点击：改文字为“确定吗？”，放大愿意按钮（覆盖1/3）
+            if (disagreeClickCount === 1) {
+                disagreeBtn.innerText = "确定吗？";
+                agreeBtnScale = 1.4;
+                disagreeBtn.style.opacity = 0.7;
+                showSadModal();
+            }
+            // 第二次点击：改文字为“真的确定吗？”，继续放大（覆盖2/3）
+            else if (disagreeClickCount === 2) {
+                disagreeBtn.innerText = "真的确定吗？";
+                agreeBtnScale = 1.9;
+                disagreeBtn.style.opacity = 0.3;
+                showSadModal();
+            }
+            // 第三次点击：愿意按钮完全覆盖，不愿意按钮隐藏禁用
+            else if (disagreeClickCount === 3) {
+                agreeBtnScale = 2.4;
+                disagreeBtn.style.opacity = 0;
+                disagreeBtn.style.pointerEvents = "none";
+                disagreeBtn.innerText = "我真的没机会了吗？"; // 最终文字
+                showSadModal();
+            }
+
+            // 应用缩放效果（愿意按钮始终在上方）
+            agreeBtn.style.transform = `scale(${agreeBtnScale})`;
+            agreeBtn.style.boxShadow = `0 12px 30px rgba(229, 62, 62, 0.4)`;
+        }
+
+        // 显示伤心弹窗
+        function showSadModal() {
+            sadModal.classList.add("active");
+            clearTimeout(sadModalTimer);
+            sadModalTimer = setTimeout(() => sadModal.classList.remove("active"), 3000);
+        }
+
+        // 生成超大动态爱心
+        function createBigHeart() {
+            const bigHeart = document.createElement("div");
+            bigHeart.classList.add("heart-big");
+            document.body.appendChild(bigHeart);
+            setTimeout(() => bigHeart.remove(), 6000);
+        }
+
+        // 生成小伤心表情包
+        function createSadIcons(count) {
+            const sadEmojis = ["😢", "😥", "😿", "😭", "😔"];
+            for (let i = 0; i < count; i++) {
+                const sadIcon = document.createElement("div");
+                sadIcon.classList.add("sad-icon");
+                sadIcon.innerText = sadEmojis[Math.floor(Math.random() * sadEmojis.length)];
+                const size = Math.random() * 15 + 20;
+                const left = Math.random() * 100;
+                const top = Math.random() * 100;
+                const opacity = Math.random() * 0.7 + 0.3;
+                sadIcon.style.fontSize = `${size}px`;
+                sadIcon.style.left = `${left}vw`;
+                sadIcon.style.top = `${top}vh`;
+                sadIcon.style.opacity = opacity;
+                sadIcon.style.animationDelay = `${Math.random() * 0.5}s`;
+                dynamicContainer.appendChild(sadIcon);
+                setTimeout(() => sadIcon.remove(), 3000);
+            }
+        }
+    </script>
+</body>
+</html>
